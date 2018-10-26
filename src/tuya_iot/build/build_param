@@ -1,0 +1,95 @@
+############################################################
+####	<1> explain
+####	<1.1> ROOT_DIR:import from root Makefile
+####	<1.2> TY_IOT_CFLAGS:export to root Makefile
+####	<1.3> TY_IOT_LIB:export to root Makefile
+####	<1.4> TY_IOT_LIB_LDFLAGS:export to root Makefile
+####	<1.5> TY_SRCS:export to root Makefile
+####	<1.6> TY_OBJS:export to root Makefile
+############################################################
+
+############################################################
+####	<2> compile option
+############################################################
+TY_DEBUG=1
+HTTPC_SECURE_MBEDTLS=0 
+IOT_SDK_VER=1.0.2
+BUILD_DATE=$(shell date +%Y_%m_%d)
+BUILD_TIME=$(shell date +%H_%M_%S)
+WIFI_GW=1
+LITTLE_END=1
+SHUTDOWN_MODE=0
+TARGET_PLATFORM=xr871
+
+# need export
+TY_IOT_CFLAGS =
+TY_IOT_CFLAGS += \
+  -DTY_DEBUG=$(TY_DEBUG) \
+  -DHTTPC_SECURE_MBEDTLS=$(HTTPC_SECURE_MBEDTLS) \
+  -DWIFI_GW=$(WIFI_GW) \
+  -DSHUTDOWN_MODE=$(SHUTDOWN_MODE) \
+  -DLITTLE_END=$(LITTLE_END) \
+  -DBUILD_DATE=\"$(BUILD_DATE)\" \
+  -DBUILD_TIME=\"$(BUILD_TIME)\" \
+  -DIOT_SDK_VER=\"$(IOT_SDK_VER)\" \
+  -DTARGET_PLATFORM=\"$(TARGET_PLATFORM)\"
+
+
+############################################################
+####	<3> compile files
+############################################################
+TY_IOT_LIB = $(ROOT_DIR)/tuya_iot/lib/libtuya_iot_lib.a # need export
+TY_IOT_LIB_LDFLAGS = -L$(dir $(TY_IOT_LIB)) -l$(patsubst lib%.a,%, $(notdir $(TY_IOT_LIB))) # need export
+
+############################################################
+####	<4> define compile src and include files
+############################################################
+# 定义需要编译以及忽略的文件夹目录(递归)
+SRC_BASE_DIRS = $(ROOT_DIR)/tuya_iot/src
+ifeq ($(strip $(HTTPC_SECURE_MBEDTLS)), 0)
+IGNORE_SRC_BASE_DIRS = $(ROOT_DIR)/tuya_iot/src/tuya_middleware/mbedtls
+else
+IGNORE_SRC_BASE_DIRS = 
+endif
+
+ifeq ($(strip $(WIFI_GW)),0)
+IGNORE_SRC_BASE_DIRS += $(ROOT_DIR)/tuya_iot/src/tuya_adapter/wifi_intf
+IGNORE_SRC_BASE_DIRS += $(ROOT_DIR)/tuya_iot/src/tuya_iot_sdk/wifi_sdk
+else
+IGNORE_SRC_BASE_DIRS += $(ROOT_DIR)/tuya_iot/src/tuya_adapter/base_nw_intf
+IGNORE_SRC_BASE_DIRS += $(ROOT_DIR)/tuya_iot/src/tuya_iot_sdk/base_sdk
+endif
+
+# 定义需要包含以及忽略的文件夹目录(递归)
+INC_BASE_DIRS = $(ROOT_DIR)/tuya_iot/include/
+ifeq ($(strip $(HTTPC_SECURE_MBEDTLS)), 0)
+IGNORE_INC_DIRS = $(ROOT_DIR)/tuya_iot/include/tuya_middleware/mbedtls
+else
+IGNORE_INC_DIRS = 
+endif
+
+ifeq ($(strip $(WIFI_GW)),0)
+IGNORE_INC_DIRS += $(ROOT_DIR)/tuya_iot/include/tuya_adapter/wifi_intf
+IGNORE_INC_DIRS += $(ROOT_DIR)/tuya_iot/include/tuya_iot_sdk/wifi_sdk
+else
+IGNORE_INC_DIRS += $(ROOT_DIR)/tuya_iot/include/tuya_adapter/base_nw_intf
+IGNORE_INC_DIRS += $(ROOT_DIR)/tuya_iot/include/tuya_iot_sdk/base_sdk
+endif
+
+SRC_DIRS = $(filter-out $(shell find $(IGNORE_SRC_BASE_DIRS) -type d),\
+		     $(foreach base_dir, $(SRC_BASE_DIRS), $(shell find $(base_dir) -type d)))
+
+TY_SRCS += $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.c)) # need export
+TY_SRCS += $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.cpp)) 
+TY_SRCS += $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.s)) 
+TY_SRCS += $(foreach dir, $(SRC_DIRS), $(wildcard $(dir)/*.S)) 
+TY_OBJS = $(addsuffix .o, $(basename  $(TY_SRCS) ) ) # need export
+
+INC_DIRS = $(filter-out $(shell find $(IGNORE_INC_DIRS) -type d),\
+		   $(foreach base_dir, $(INC_BASE_DIRS), $(shell find $(base_dir) -type d)))
+#INC_DIRS += $(ROOT_DIR)/include
+TY_IOT_INCLUDE = 
+TY_IOT_INCLUDE += $(foreach base_dir, $(INC_DIRS), $(addprefix -I , $(base_dir))) # need export
+
+TY_IOT_CFLAGS += -Wno-unused-result
+
