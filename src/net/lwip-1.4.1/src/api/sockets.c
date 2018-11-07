@@ -1294,8 +1294,10 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
       if ((readset && FD_ISSET(i, readset)) ||
           (writeset && FD_ISSET(i, writeset)) ||
           (exceptset && FD_ISSET(i, exceptset))) {
-	    struct lwip_sock *sock;
+	    struct lwip_sock *sock;	//luowq add
         SYS_ARCH_PROTECT(lev);
+
+		//luowq add
         sock = tryget_socket(i);
         if (sock != NULL) {
           sock->select_waiting++;
@@ -1306,7 +1308,7 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
           maxfdp2 = i;
           SYS_ARCH_UNPROTECT(lev);
           break;
-        }
+        }	///
         SYS_ARCH_UNPROTECT(lev);
       }
     }
@@ -1330,12 +1332,14 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
       waitres = sys_arch_sem_wait(&select_cb.sem, msectimeout);
     }
     /* Increase select_waiting for each socket we are interested in */
-    for(i = 0; i < maxfdp2; i++) {
+    for(i = 0; i < maxfdp2; i++) {	//luowq add
       if ((readset && FD_ISSET(i, readset)) ||
           (writeset && FD_ISSET(i, writeset)) ||
           (exceptset && FD_ISSET(i, exceptset))) {
-		struct lwip_sock *sock;
+		struct lwip_sock *sock;	//luowq add
         SYS_ARCH_PROTECT(lev);
+
+		//luowq add
         sock = tryget_socket(i);
         if (sock != NULL) {
           /* for now, handle select_waiting==0... */
@@ -1346,7 +1350,7 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
         } else {
           /* Not a valid socket */
           nready = -1;
-        }
+        } ///
         SYS_ARCH_UNPROTECT(lev);
       }
     }
@@ -1367,6 +1371,14 @@ lwip_select(int maxfdp1, fd_set *readset, fd_set *writeset, fd_set *exceptset,
     SYS_ARCH_UNPROTECT(lev);
 
     sys_sem_free(&select_cb.sem);
+
+	//luowq add
+    if (nready < 0) {
+      /* This happens when a socket got closed while waiting */
+      set_errno(EBADF);
+      return -1;
+    }	///
+
     if (waitres == SYS_ARCH_TIMEOUT)  {
       /* Timeout */
       LWIP_DEBUGF(SOCKETS_DEBUG, ("lwip_select: timeout expired\n"));

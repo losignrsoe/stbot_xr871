@@ -483,6 +483,9 @@ int net_ctrl_disconnect_ap(void)
 	return 0;
 }
 
+int scan_status;	//tuya-iot luowq add
+int connect_status;	//tuya-iot luowq add
+
 void net_ctrl_msg_process(uint32_t event, uint32_t data, void *arg)
 {
 	uint16_t type = EVENT_SUBTYPE(event);
@@ -490,6 +493,7 @@ void net_ctrl_msg_process(uint32_t event, uint32_t data, void *arg)
 
 	switch (type) {
 	case NET_CTRL_MSG_WLAN_CONNECTED:
+		connect_status = NET_CTRL_MSG_WLAN_CONNECTED;	//tuya-iot luowq add
 		if (g_wlan_netif && !netif_is_link_up(g_wlan_netif)) {
 			netifapi_netif_set_link_up(g_wlan_netif); /* set link up */
 #if (defined(__CONFIG_LWIP_V1) || LWIP_IPV4)
@@ -513,12 +517,15 @@ void net_ctrl_msg_process(uint32_t event, uint32_t data, void *arg)
 		}
 		break;
 	case NET_CTRL_MSG_WLAN_SCAN_SUCCESS:
+		scan_status = NET_CTRL_MSG_WLAN_SCAN_SUCCESS;	//tuya-iot luowq add
 		break;
 	case NET_CTRL_MSG_WLAN_SCAN_FAILED:
+		scan_status = NET_CTRL_MSG_WLAN_SCAN_FAILED;	//tuya-iot luowq add
 		break;
 	case NET_CTRL_MSG_WLAN_4WAY_HANDSHAKE_FAILED:
 		break;
 	case NET_CTRL_MSG_WLAN_CONNECT_FAILED:
+		connect_status = NET_CTRL_MSG_WLAN_CONNECT_FAILED;	//tuya-iot luowq add
 		break;
 	case NET_CTRL_MSG_CONNECTION_LOSS:
 		break;

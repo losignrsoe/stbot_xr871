@@ -49,6 +49,8 @@
 player_base *player;
 volatile st_scene_m bot_scene;
 
+extern void duer_media_set_volume(int volume);
+
 static void key_callback(key_value_type_m key_type, key_trig_type_m trig_type, uint8_t cnt)
 {
 	tuya_arch_key_manage(key_type, trig_type);
@@ -56,8 +58,8 @@ static void key_callback(key_value_type_m key_type, key_trig_type_m trig_type, u
 
 static void knob_callback(uint32_t volume, void *arg)
 {
-	TUYA_ST_LOG(DBG_DBG, "volume = %d\n", volume);
-	player->setvol(player, volume);
+	//TUYA_ST_LOG(DBG_DBG, "volume = %d\n", volume);
+	duer_media_set_volume(volume);
 }
 
 static void elect_capacity_callback(uint8_t now_cap)
@@ -79,11 +81,7 @@ void tuya_storybot_main_pre(void)
 	}
 
 	player = awplayer_create();	//player最好最先创建
-#if USE_KNOB_TO_SET_VOICE
 	player->setvol(player, 0);
-#else
-	player->setvol(player, SET_FUNC_DEFAULT_VOICE);
-#endif
 
 	/* st function define */
 	tuya_st_duer_start();
@@ -110,11 +108,17 @@ void tuya_storybot_main_init(void)
 	TUYA_ST_LOG(DBG_DBG, "tuya_storybot_main_init!\n");
 	tuya_arch_led_sta_manage();
 
+#if !USE_KNOB_TO_SET_VOICE
+	duer_media_set_volume(SET_DEFAULT_VOICE);
+#endif
+
 	tuya_arch_dsleep_check();
 
 	tuya_arch_time_1s_count();
 
 	tuya_arch_reboot_sta_jude();
+
+	tuya_arch_report_dective_task();
 }
 
 extern int user_main(void);

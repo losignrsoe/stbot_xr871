@@ -1201,13 +1201,15 @@
  * LWIP_TCPIP_CORE_LOCKING: (EXPERIMENTAL!)
  * Don't use it if you're not an active lwIP project member
  */
-#define LWIP_TCPIP_CORE_LOCKING         0
+//#define LWIP_TCPIP_CORE_LOCKING         0
+#define LWIP_TCPIP_CORE_LOCKING         1	//tuya-iot luowq add
 
 /**
  * LWIP_TCPIP_CORE_LOCKING_INPUT: (EXPERIMENTAL!)
  * Don't use it if you're not an active lwIP project member
  */
-#define LWIP_TCPIP_CORE_LOCKING_INPUT   0
+//#define LWIP_TCPIP_CORE_LOCKING_INPUT   0
+#define LWIP_TCPIP_CORE_LOCKING_INPUT   1	//tuya-iot luowq add
 
 /**
  * LWIP_NETCONN==1: Enable Netconn API (require to use api_lib.c)
@@ -1265,7 +1267,8 @@
 /**
  * LWIP_SO_RCVBUF==1: Enable SO_RCVBUF processing.
  */
-#define LWIP_SO_RCVBUF                  1
+//#define LWIP_SO_RCVBUF                  1
+#define LWIP_SO_RCVBUF                  0	//tuya-iot luowq add
 
 /**
  * If LWIP_SO_RCVBUF is used, this is the default value for recv_bufsize.

@@ -35,8 +35,17 @@ extern void tuya_iot_user_main(void);
 extern void tuya_storybot_main_pre(void);
 extern void tuya_storybot_main_init(void);
 
+static void storybot_start_print(void)
+{
+	printf("\n||========================================||\n");
+	printf("||=================ST START!!===============||\n");
+	printf("||========================================||\n\n");
+}
+
 int main(void)
 {
+	storybot_start_print();
+
 	platform_init();
 	OS_MSleep(100);	//for debug
 

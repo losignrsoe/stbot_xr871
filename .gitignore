@@ -17,5 +17,4 @@
 *.xz
 si_pri
 src/tuya_iot/src
-project/tuya_storybot/st_src
-project/tuya_storybot/st_inc
+project/tuya_storybot

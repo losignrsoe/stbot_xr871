@@ -44,7 +44,8 @@ static struct sysinfo g_sysinfo;
 static fdcm_handle_t *g_fdcm_hdl;
 #endif
 
-static uint8_t m_sysinfo_mac_addr[] = { 0x00, 0x80, 0xE1, 0x29, 0xE8, 0xD1 };
+//static uint8_t m_sysinfo_mac_addr[] = { 0x00, 0x80, 0xE1, 0x29, 0xE8, 0xD1 };
+static uint8_t m_sysinfo_mac_addr[] = { 0x00, 0x80, 0x01, 0x02, 0x03, 0x04 };  //tuya-iot luowq add
 
 static void sysinfo_gen_mac_random(uint8_t mac_addr[6])
 {
@@ -121,8 +122,11 @@ static void sysinfo_init_mac_addr(void)
 	}
 
 random_mac_addr:
+#if 0	//tuya-iot luowq add
 	SYSINFO_DBG("random mac addr\n");
 	sysinfo_gen_mac_random(g_sysinfo.mac_addr);
+#endif
+	memcpy(g_sysinfo.mac_addr, m_sysinfo_mac_addr, SYSINFO_MAC_ADDR_LEN);	//tuya-iot luowq add
 }
 
 static void sysinfo_init_value(void)
